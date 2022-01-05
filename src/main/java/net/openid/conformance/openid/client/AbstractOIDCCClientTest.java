@@ -523,26 +523,29 @@ public abstract class AbstractOIDCCClientTest extends AbstractTestModule {
 
 	protected Object handleClientRequestForPath(String requestId, String path, HttpServletResponse servletResponse){
 
-		if (path.equals("authorize")) {
 
+		if (path.equals("authorize")) {
+			checkDiscoveryCall(path);
 			receivedAuthorizationRequest = true;
 			return handleAuthorizationEndpointRequest(requestId);
 
 		} else if (path.equals("token")) {
-
+			checkDiscoveryCall(path);
 			receivedTokenRequest = true;
 			return handleTokenEndpointRequest(requestId);
 
 		} else if (path.equals(getJwksPath())) {
-
+			checkDiscoveryCall(path);
 			receivedJwksRequest = true;
 			return handleJwksEndpointRequest();
 
 		} else if (path.equals("userinfo")) {
+			checkDiscoveryCall(path);
 			receivedUserinfoRequest = true;
 			return handleUserinfoEndpointRequest(requestId);
 
 		} else if (path.equals("register") && clientRegistrationType == ClientRegistration.DYNAMIC_CLIENT) {
+			checkDiscoveryCall(path);
 			receivedRegistrationRequest = true;
 			return handleRegistrationEndpointRequest(requestId);
 
@@ -555,6 +558,12 @@ public abstract class AbstractOIDCCClientTest extends AbstractTestModule {
 
 			throw new TestFailureException(getId(), "Got unexpected HTTP call to " + path);
 
+		}
+	}
+
+	private void checkDiscoveryCall(String path) {
+		if(!receivedDiscoveryRequest){
+			throw new TestFailureException(getId(), "Got unexpected HTTP call to " + path + ' before the discovery endpoint call');
 		}
 	}
 
